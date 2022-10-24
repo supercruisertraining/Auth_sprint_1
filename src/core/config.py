@@ -7,6 +7,17 @@ class Config(BaseSettings):
     DB_HOST: str = "127.0.0.1"
     DB_PORT: int = 5432
     DB_NAME: str = "movies_database"
+    SCHEMAS_SEARCH_ORDER: str = "auth,content,public"
+
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+    REDIS_DB_NUM: int = 5
+
+    JWT_SECRET: str = "secret"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TTL_MINUTES: int = 5
+    JWT_REFRESH_TTL_DAYS: int = 30
+
 
 
 config = Config()
