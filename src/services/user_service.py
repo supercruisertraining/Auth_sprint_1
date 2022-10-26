@@ -27,6 +27,9 @@ class UserService:
         self.db_service.create_user(username=user.username, password=user.password,
                                     first_name=user.first_name, last_name=user.last_name)
 
+    def get_user_by_user_id(self, user_id: str):
+        return self.db_service.get_user_by_id(user_id)
+
 
 @lru_cache
 def get_user_service():

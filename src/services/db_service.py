@@ -17,6 +17,14 @@ class DBService:
         user_model.id = str(user_model.id)
         return user_model
 
+    def get_user_by_id(self, user_id: str) -> UserModel | None:
+        user = self.db.query(User).get(user_id)
+        if not user:
+            return None
+        user_model = UserModel.from_orm(user)
+        user_model.id = str(user_model.id)
+        return user_model
+
     def create_user(self, username: str, password: str, last_name: str | None = None, first_name: str | None = None):
         self.db.add(User(username=username,
                          password=self.cook_password_to_db(password),

@@ -10,7 +10,7 @@ JWT_REFRESH_TTL_td = timedelta(days=config.JWT_REFRESH_TTL_DAYS)
 
 
 class JWTService:
-    def __init__(self, user_id, user_role):
+    def __init__(self, user_id: str, user_role: str):
         self.user_id = user_id
         self.user_role = user_role
 
@@ -32,6 +32,7 @@ class JWTService:
         payload = {
             "exp": exp_utc,
             "iat": datetime.utcnow(),
+            "user_id": self.user_id,
         }
         token = jwt.encode(payload=payload, key=config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
         return Token(token=token, iat_utc=iat_utc, ttl_td=timedelta(seconds=JWT_REFRESH_TTL_td.total_seconds()))
@@ -42,5 +43,5 @@ class JWTService:
         return JWTTokenPair(access_jwt_token=jwt_access, refresh_jwt_token=jwt_refresh)
 
 
-def get_token_service(user_id: str, user_role: str):
+def get_token_service(user_id: str, user_role: str | None):
     return JWTService(user_id=user_id, user_role=user_role)
