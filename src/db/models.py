@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -21,6 +21,18 @@ class User(Base):
 
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+class LoginStat(Base):
+    __tablename__ = "login_stat"
+    __table_args__ = {"schema": "auth"}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id))
+    ip = Column(String, default=None, nullable=True)
+    os = Column(String, default=None, nullable=True)
+    browser = Column(String, default=None, nullable=True)
+    device = Column(String, default=None, nullable=True)
+    created_at_utc = Column(DateTime, nullable=False)
 
 
 Base.metadata.create_all(bind=engine)

@@ -22,7 +22,7 @@ class Config(BaseSettings):
     JWT_SECRET: str = "secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TTL_MINUTES: int = 5
-    JWT_REFRESH_TTL_DAYS: int = 30
+    JWT_REFRESH_TTL_DAYS: int = 1
 
 
 

@@ -1,8 +1,9 @@
 import jwt
 from flask import Flask, request, Response, jsonify
 from flasgger import Swagger
+from user_agents import parse
 
-from schemas.user import UserRegisterModel
+from schemas.user import UserRegisterModel, UserUpdateModel
 from services.user_service import get_user_service
 from services.token_service import get_token_service
 from services.token_storage_service import get_token_storage_service
@@ -44,9 +45,47 @@ def create_user():
     is_valid, reason = user_service.validate_to_create(new_user)
     if not is_valid:
         return jsonify({"message": reason}), 409
-    user_service.create_user(new_user)
+    new_id = user_service.create_user(new_user)
 
-    return Response(response="User created", status=200)
+    return jsonify({"user_id": new_id}), 200
+
+
+@app.route("/api/v1/update_user", methods=["PUT"])
+@token_required
+def update_user(user_id: str, *args):
+    """
+    Изменить данные пользователя
+    ---
+    security:
+      - APIKeyHeader: ['Authorization']
+    parameters:
+      - name: body
+        in: body
+        schema:
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+    responses:
+        200:
+            description: Success
+    """
+    user = UserUpdateModel(**request.json)
+    user_service = get_user_service()
+    exist_user = user_service.get_user_by_user_id(user_id)
+    if user.username and exist_user.username == user.username:
+        user.username = None
+    is_valid, reason = user_service.validate_to_create(user)
+    if not is_valid:
+        return jsonify({"message": reason}), 409
+    user_service.update_user(user)
+
+    return jsonify({"user_id": user_id}), 200
 
 
 @app.route("/api/v1/login", methods=["POST"])
@@ -75,7 +114,30 @@ def user_login():
     jwt_token_pair = token_service.generate_jwt_key_pair()
     token_storage_service = get_token_storage_service()
     token_storage_service.push_token(user_id=user_dto.id, token_data=jwt_token_pair.refresh_jwt_token)
+    user_agent_obj = parse(str(request.user_agent)) if request.user_agent_class else None
+    user_service.add_login_record(user_id=user_dto.id,
+                                  user_ip=request.remote_addr,
+                                  user_os=user_agent_obj.get_os() if user_agent_obj else None,
+                                  user_browser=user_agent_obj.get_browser() if user_agent_obj else None,
+                                  user_device=user_agent_obj.get_device() if user_agent_obj else None)
     return jsonify(jwt_token_pair.render_to_user()), 200
+
+
+@app.route("/api/v1/get_login_stat", methods=["GET"])
+@token_required
+def get_login_stat_list(user_id: str, *args, **kwargs):
+    """
+    Получить историю входов в аккаунт
+    ---
+    security:
+      - APIKeyHeader: ['Authorization']
+    responses:
+        200:
+            description: Success
+    """
+    user_service = get_user_service()
+    login_stat = user_service.get_login_stat_list(user_id)
+    return jsonify(login_stat), 200
 
 
 @app.route("/api/v1/refresh", methods=["PUT"])
@@ -83,6 +145,8 @@ def refresh_tokens():
     """
     Сменить пару токенов
     ---
+    security:
+      - APIKeyHeader: ['Authorization']
     parameters:
       - name: body
         in: body
@@ -142,6 +206,11 @@ def logout_user(user_id: str, *args, **kwargs):
         token_storage_service = get_token_storage_service()
         token_storage_service.pop_token(refresh_token)
     return '', 204
+
+@app.route("/hello", methods=["GET"])
+def hello():
+    print(request.user_agent)
+    return '', 200
 
 
 if __name__ == '__main__':
