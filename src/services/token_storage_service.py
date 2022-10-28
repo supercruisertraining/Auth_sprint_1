@@ -45,6 +45,16 @@ class RedisTokenStorage(BaseTokenStorage):
                 return token_data["user_id"]
         return None
 
+    def get_tokens_from_background(self, user_id: str):
+        search_str = self._cook_key_for_background(token="*", user_id=user_id)
+        bg_keys_list = self.redis_background.keys(pattern=search_str) or []
+        result_list = []
+        for bg_key in bg_keys_list:
+            bg_token_data_raw = self.redis_background.getdel(bg_key)
+            bg_token_data = json.loads(bg_token_data_raw) if bg_token_data_raw else {}
+            result_list.append(bg_token_data.get("token", ""))
+        return result_list
+
     def _cook_key_for_background(self, token: str, user_id: str) -> str:
         return config.REDIS_BG_FORMAT_KEY.format(token=token, user_id=user_id)
 

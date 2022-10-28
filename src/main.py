@@ -207,10 +207,24 @@ def logout_user(user_id: str, *args, **kwargs):
         token_storage_service.pop_token(refresh_token)
     return '', 204
 
-@app.route("/hello", methods=["GET"])
-def hello():
-    print(request.user_agent)
-    return '', 200
+
+@app.route("/api/v1/logout_hard", methods=["DELETE"])
+@token_required
+def logout_hard(user_id: str, *args, **kwargs):
+    """
+    Выйти из системы на всех устройствах
+    ---
+    security:
+      - APIKeyHeader: ['Authorization']
+    responses:
+        204:
+            description: Success
+    """
+    token_storage_service = get_token_storage_service()
+    bg_tokens = token_storage_service.get_tokens_from_background(user_id)
+    for token in bg_tokens:
+        token_storage_service.pop_token(token)
+    return '', 204
 
 
 if __name__ == '__main__':
