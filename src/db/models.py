@@ -24,7 +24,7 @@ class User(Base):
     password = Column(String, nullable=False)
     first_name = Column(String, nullable=True, default=None)
     last_name = Column(String, nullable=True, default=None)
-    role = Column(String, ForeignKey(Role.role_name), nullable=True)
+    role = Column(String, ForeignKey(Role.role_name, ondelete="SET NULL"), nullable=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
