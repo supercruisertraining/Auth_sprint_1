@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import desc
 
 from db.db import session_factory
-from db.models import User, LoginStat
+from db.models import User, LoginStat, Role
 from schemas.user import UserModel
 
 
@@ -31,21 +31,22 @@ class DBService:
     def create_user(self, username: str, password: str,
                     last_name: str | None = None, first_name: str | None = None) -> UUID:
         new_user = User(username=username,
-                        password=self.cook_password_to_db(password),
+                        password=password,
                         last_name=last_name,
                         first_name=first_name)
         self.db.add(new_user)
-        self.db.refresh(new_user)
         self.db.commit()
         return new_user.id
 
     def update_user(self, user_id: str, username: str | None = None, password: str | None = None,
                     last_name: str | None = None, first_name: str | None = None):
         update_dict = {"username": username,
-                       "password": self.cook_password_to_db(password) if password is not None else None,
+                       "password": password,
                        "last_name": last_name,
                        "first_name": first_name}
-        self.db.query(User).get(user_id).update({key: value for key, value in update_dict.items() if value})
+        user_obj = self.db.query(User).get(user_id)
+        for key, value in {key: value for key, value in update_dict.items() if value}.items():
+            setattr(user_obj, key, value)
         self.db.commit()
 
     def add_login_record(self, user_id: str, user_ip: str | None, user_os: str | None, user_browser: str | None,
@@ -58,8 +59,13 @@ class DBService:
         return self.db.query(LoginStat).filter(LoginStat.user_id == user_id)\
             .order_by(desc(LoginStat.created_at_utc)).all()
 
-    def cook_password_to_db(self, password: str):
-        return password
+    def get_role(self, role_name: str):
+        return self.db.query(Role).get(role_name)
+
+    def update_role(self, user_id: str, role: str):
+        user_obj = self.db.query(User).get(user_id)
+        user_obj.role = role
+        self.db.commit()
 
 
 @lru_cache

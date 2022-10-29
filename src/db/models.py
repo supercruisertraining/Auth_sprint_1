@@ -9,6 +9,12 @@ from db.db import engine
 Base = declarative_base()
 
 
+class Role(Base):
+    __tablename__ = "roles"
+    __table_args__ = {"schema": "auth"}
+    role_name = Column(String, primary_key=True)
+
+
 class User(Base):
     __tablename__ = "users"
     __table_args__ = {"schema": "auth"}
@@ -18,6 +24,7 @@ class User(Base):
     password = Column(String, nullable=False)
     first_name = Column(String, nullable=True, default=None)
     last_name = Column(String, nullable=True, default=None)
+    role = Column(String, ForeignKey(Role.role_name), nullable=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -27,7 +34,7 @@ class LoginStat(Base):
     __tablename__ = "login_stat"
     __table_args__ = {"schema": "auth"}
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id))
+    user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"))
     ip = Column(String, default=None, nullable=True)
     os = Column(String, default=None, nullable=True)
     browser = Column(String, default=None, nullable=True)

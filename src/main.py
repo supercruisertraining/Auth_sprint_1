@@ -50,9 +50,9 @@ def create_user():
     return jsonify({"user_id": new_id}), 200
 
 
-@app.route("/api/v1/update_user", methods=["PUT"])
+@app.route("/api/v1/update_user", methods=["PATCH"])
 @token_required
-def update_user(user_id: str, *args):
+def update_user(user_id: str, *args, **kwargs):
     """
     Изменить данные пользователя
     ---
@@ -83,7 +83,7 @@ def update_user(user_id: str, *args):
     is_valid, reason = user_service.validate_to_create(user)
     if not is_valid:
         return jsonify({"message": reason}), 409
-    user_service.update_user(user)
+    user_service.update_user(user_id, user)
 
     return jsonify({"user_id": user_id}), 200
 
@@ -224,6 +224,30 @@ def logout_hard(user_id: str, *args, **kwargs):
     bg_tokens = token_storage_service.get_tokens_from_background(user_id)
     for token in bg_tokens:
         token_storage_service.pop_token(token)
+    return '', 204
+
+
+@app.route("/api/v1/assign_role", methods=["PATCH"])
+@token_required
+def assign_role(user_id: str, *args, **kwargs):
+    """
+    Обновить роль пользователя
+    ---
+    security:
+      - APIKeyHeader: ['Authorization']
+    parameters:
+      - name: body
+        in: body
+        schema:
+          properties:
+            role:
+              type: string
+    responses:
+        204:
+            description: Success
+    """
+    user_service = get_user_service()
+    user_service.assign_role(user_id, request.json["role"])
     return '', 204
 
 
