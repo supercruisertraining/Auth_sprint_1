@@ -9,6 +9,7 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - REDIS_HOST=${REDIS_HOST}
+      - REDIS_BG_HOST=${REDIS_HOST}
       - JWT_SECRET=${JWT_SECRET}
     working_dir: /app/src
     depends_on:

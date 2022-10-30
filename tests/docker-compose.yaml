@@ -1,0 +1,59 @@
+version: "3.9"
+services:
+  auth:
+    image: auth
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_BG_HOST=${REDIS_HOST}
+      - JWT_SECRET=${JWT_SECRET}
+    working_dir: /app/src
+    depends_on:
+      - redis
+      - postgres
+    command: gunicorn --workers 4 --bind 0.0.0.0:8000 wsgi_app:app
+
+  test:
+    image: auth
+    environment:
+      - API_BASE_URL=${API_BASE_URL}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_BG_HOST=${REDIS_HOST}
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    depends_on:
+      - auth
+      - redis
+      - postgres
+    command: pytest tests/functional/src
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+  postgres:
+    image: "postgres:13"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql:ro
+
+  nginx:
+    image: nginx
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - ../nginx/simple_config.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - auth
