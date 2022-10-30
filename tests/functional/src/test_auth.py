@@ -133,7 +133,6 @@ async def test_hard_logout(login_test_users):
         for key in keys_list:
             data_raw = await redis.get(key)
             data = json.loads(data_raw)
-            print(data, user["user_id"])
             if data.get("user_id") == user["user_id"]:
                 has_users_keys = True
                 await redis.delete(key)
@@ -154,8 +153,6 @@ async def test_refresh(login_test_users):
             async with session.put(url, json={"refresh_token": user["refresh_token"]}) as response:
                 response.raise_for_status()
                 body = await response.json()
-        print(user)
-        print(body)
         assert user["refresh_token"] != body["refresh_token"]
         assert user["access_token"] != body["access_token"]
         assert await redis.delete(body["refresh_token"])

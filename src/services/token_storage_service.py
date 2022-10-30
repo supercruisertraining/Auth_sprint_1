@@ -35,7 +35,6 @@ class RedisTokenStorage(BaseTokenStorage):
                                     value=json.dumps({"exp_utc": str(token_data.iat_utc + token_data.ttl_td),
                                                       "user_id": user_id,
                                                       "token": token_data.token}))
-        print("ATTENTION", self.redis.get(token_data.token))
 
     def pop_token(self, token: str) -> str | None:
         token_data = self.redis.getdel(token)
