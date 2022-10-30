@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  auth:
+    image: auth
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - JWT_SECRET=${JWT_SECRET}
+    working_dir: /app/src
+    depends_on:
+      - redis
+    command: gunicorn --workers 4 --bind 0.0.0.0:8000 wsgi_app:app
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  nginx:
+    image: nginx
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - ./nginx/simple_config.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - auth
