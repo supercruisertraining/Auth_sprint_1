@@ -6,6 +6,10 @@ class TestConfig(BaseSettings):
     API_PATH_CREATE_USER: str = "/api/v1/create_user"
     API_PATH_LOGIN_USER: str = "/api/v1/login"
     API_PATH_UPDATE_USER: str = "/api/v1/update_user"
+    API_PATH_SOFT_LOGOUT_USER: str = "/api/v1/logout"
+    API_PATH_HARD_LOGOUT_USER: str = "/api/v1/logout_hard"
+    API_PATH_REFRESH: str = "/api/v1/refresh"
+    API_ASSIGN_USER_ROLE: str = "/api/v1/assign_role"
 
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379

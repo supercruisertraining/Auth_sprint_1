@@ -63,7 +63,7 @@ async def create_test_users(create_role):
         session.commit()
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def login_test_users(create_test_users):
     test_users_data = create_test_users
     test_users_login_list = []
@@ -79,6 +79,7 @@ async def login_test_users(create_test_users):
                 body = await response.json()
                 test_users_login_list.append({"user_id": user_data["user_id"],
                                               "username": user_data["username"],
+                                              "password": user_data["password"],
                                               "access_token": body["access_token"],
                                               "refresh_token": body["refresh_token"],
                                               "last_name": user_data["last_name"],
