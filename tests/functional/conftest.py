@@ -44,17 +44,45 @@ def create_role():
 
 @pytest_asyncio.fixture(scope="session")
 async def create_test_users(create_role):
-    new_test_users_ids = []
-    url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_CRETE_USER)
+    new_test_users_data = []
+    url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_CREATE_USER)
     async with ClientSession() as session:
         for user_data in test_create_users_list:
             async with session.post(url, json=user_data) as response:
                 response.raise_for_status()
                 body = await response.json()
-                new_test_users_ids.append(body["user_id"])
-    yield
+                new_test_users_data.append({"user_id": body["user_id"],
+                                            "username": user_data["username"],
+                                            "password": user_data["password"],
+                                            "last_name": user_data["last_name"],
+                                            "first_name": user_data["first_name"]})
+    yield new_test_users_data
     with session_factory() as session:
-        stmt = delete(User).where(User.id.in_(new_test_users_ids))
+        stmt = delete(User).where(User.id.in_([user["user_id"] for user in new_test_users_data]))
         session.execute(stmt)
         session.commit()
+
+
+@pytest_asyncio.fixture(scope="session")
+async def login_test_users(create_test_users):
+    test_users_data = create_test_users
+    test_users_login_list = []
+    url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_LOGIN_USER)
+    async with ClientSession() as session:
+        for user_data in test_users_data:
+            async with session.post(url,
+                                    json={
+                                        "username": user_data["username"],
+                                        "password": user_data["password"]
+                                    }
+                                    ) as response:
+                body = await response.json()
+                test_users_login_list.append({"user_id": user_data["user_id"],
+                                              "username": user_data["username"],
+                                              "access_token": body["access_token"],
+                                              "refresh_token": body["refresh_token"],
+                                              "last_name": user_data["last_name"],
+                                              "first_name": user_data["first_name"]})
+    return test_users_login_list
+
 

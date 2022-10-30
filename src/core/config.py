@@ -25,5 +25,4 @@ class Config(BaseSettings):
     JWT_REFRESH_TTL_DAYS: int = 1
 
 
-
 config = Config()
