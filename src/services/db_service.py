@@ -55,9 +55,9 @@ class DBService:
                               device=user_device, created_at_utc=datetime_utc))
         self.db.commit()
 
-    def get_login_stat(self, user_id: str) -> list[LoginStat]:
+    def get_login_stat(self, user_id: str, limit: int, offset: int) -> list[LoginStat]:
         return self.db.query(LoginStat).filter(LoginStat.user_id == user_id)\
-            .order_by(desc(LoginStat.created_at_utc)).all()
+            .order_by(desc(LoginStat.created_at_utc)).limit(limit).offset(offset).all()
 
     def get_role(self, role_name: str):
         return self.db.query(Role).get(role_name)

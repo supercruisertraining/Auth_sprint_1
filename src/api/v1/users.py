@@ -83,10 +83,21 @@ def get_login_stat_list(user_id: str, *args, **kwargs):
     ---
     security:
       - APIKeyHeader: ['Authorization']
+    parameters:
+      - name: page_size
+        in: query
+        type: integer
+        example: 50
+      - name: page_number
+        in: query
+        type: integer
+        example: 1
     responses:
         200:
             description: Success
     """
     user_service = get_user_service()
-    login_stat = user_service.get_login_stat_list(user_id)
+    page_size = int(request.args.get("page_size", 50))
+    page_number = int(request.args.get("page_number", 1))
+    login_stat = user_service.get_login_stat_list(user_id, page_size=page_size, page_number=page_number)
     return jsonify(login_stat), HTTPStatus.OK

@@ -46,9 +46,12 @@ class UserService:
     def get_user_by_user_id(self, user_id: str):
         return self.db_service.get_user_by_id(user_id)
 
-    def get_login_stat_list(self, user_id: str) -> list[dict]:
+    def get_login_stat_list(self, user_id: str, page_size: int, page_number: int) -> list[dict]:
+        offset = (page_number - 1) * page_size
         return list(map(lambda x: {"ip": x.ip, "os": x.os, "device": x.device, "browser": x.browser,
-                                   "datetime_utc": x.created_at_utc}, self.db_service.get_login_stat(user_id)))
+                                   "datetime_utc": x.created_at_utc}, self.db_service.get_login_stat(user_id,
+                                                                                                     limit=page_size,
+                                                                                                     offset=offset)))
 
     def assign_role(self, user_id: str, role: str):
         if not self.db_service.get_role(role):
