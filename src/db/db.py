@@ -9,6 +9,4 @@ engine = create_engine(
     connect_args={"options": f"-csearch_path={config.SCHEMAS_SEARCH_ORDER}"},
     echo=config.DEBUG)
 
-from db import models
-
 session_factory = sessionmaker(bind=engine)

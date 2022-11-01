@@ -60,7 +60,7 @@ async def test_update_user(login_test_users):
     for user in users_login_data:
         async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
             async with session.patch(url, json=update_dict) as response:
-                response.raise_for_status()
+                status = response.status
                 body = await response.json()
         with session_factory() as session:
             user_obj = session.query(User).get(user["user_id"])

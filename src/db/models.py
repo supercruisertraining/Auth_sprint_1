@@ -4,8 +4,6 @@ from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 
-from db.db import engine
-
 Base = declarative_base()
 
 
@@ -17,7 +15,6 @@ class Role(Base):
 
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
@@ -25,6 +22,7 @@ class User(Base):
     first_name = Column(String, nullable=True, default=None)
     last_name = Column(String, nullable=True, default=None)
     role = Column(String, ForeignKey(Role.role_name, ondelete="SET NULL"), nullable=True)
+    __table_args__ = {"schema": "auth"}
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -32,7 +30,6 @@ class User(Base):
 
 class LoginStat(Base):
     __tablename__ = "login_stat"
-    __table_args__ = {"schema": "auth"}
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"))
     ip = Column(String, default=None, nullable=True)
@@ -40,6 +37,4 @@ class LoginStat(Base):
     browser = Column(String, default=None, nullable=True)
     device = Column(String, default=None, nullable=True)
     created_at_utc = Column(DateTime, nullable=False)
-
-
-Base.metadata.create_all(bind=engine)
+    __table_args__ = {"schema": "auth"}
