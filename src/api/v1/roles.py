@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import request, Blueprint
 
 from services.user_service import get_user_service
@@ -28,4 +30,4 @@ def assign_role(user_id: str, *args, **kwargs):
     """
     user_service = get_user_service()
     user_service.assign_role(user_id, request.json["role"])
-    return '', 204
+    return '', HTTPStatus.NO_CONTENT

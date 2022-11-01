@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import request, jsonify, Blueprint
 
 from schemas.user import UserRegisterModel, UserUpdateModel
@@ -29,10 +31,10 @@ def create_user():
     user_service = get_user_service()
     is_valid, reason = user_service.validate_to_create(new_user)
     if not is_valid:
-        return jsonify({"message": reason}), 409
+        return jsonify({"message": reason}), HTTPStatus.CONFLICT
     new_id = user_service.create_user(new_user)
 
-    return jsonify({"user_id": new_id}), 200
+    return jsonify({"user_id": new_id}), HTTPStatus.OK
 
 
 @users_blueprint_v1.route("/update_user", methods=["PATCH"])
@@ -67,10 +69,10 @@ def update_user(user_id: str, *args, **kwargs):
         user.username = None
     is_valid, reason = user_service.validate_to_create(user)
     if not is_valid:
-        return jsonify({"message": reason}), 409
+        return jsonify({"message": reason}), HTTPStatus.CONFLICT
     user_service.update_user(user_id, user)
 
-    return jsonify({"user_id": user_id}), 200
+    return jsonify({"user_id": user_id}), HTTPStatus.OK
 
 
 @users_blueprint_v1.route("/get_login_stat", methods=["GET"])
@@ -87,4 +89,4 @@ def get_login_stat_list(user_id: str, *args, **kwargs):
     """
     user_service = get_user_service()
     login_stat = user_service.get_login_stat_list(user_id)
-    return jsonify(login_stat), 200
+    return jsonify(login_stat), HTTPStatus.OK
