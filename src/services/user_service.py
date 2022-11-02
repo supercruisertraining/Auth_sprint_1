@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from services.db_service import get_db_service
 from services.db_service import DBService
-from schemas.user import UserModel, UserRegisterModel, UserUpdateModel
+from schemas.user import UserModel, UserRegisterModel, UserUpdateModel, SuperUserCreationModel
 
 
 class UserService:
@@ -32,6 +32,25 @@ class UserService:
         if new_id:
             new_id = str(new_id)
         return new_id
+
+    def validate_to_create_superuser(self, user: SuperUserCreationModel):
+        if len(user.password) < 6:
+            return False, "Password should not contain less 6 characters"
+        exist_user = self.db_service.get_superuser_by_username(user.username)
+        if exist_user:
+            return False, "Such username already exists"
+        return True, ""
+
+    def create_superuser(self, user: SuperUserCreationModel) -> str:
+        new_id = self.db_service.create_superuser(username=user.username,
+                                                  password=self._cook_password_to_db(user.password),
+                                                  first_name=user.first_name, last_name=user.last_name)
+        if new_id:
+            new_id = str(new_id)
+        return new_id
+
+    def get_superusers(self):
+        return self.db_service.get_superusers_from_db()
 
     def update_user(self, user_id: str, user: UserUpdateModel):
         if user.password:

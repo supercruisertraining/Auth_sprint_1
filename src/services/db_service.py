@@ -4,8 +4,8 @@ from uuid import UUID
 from sqlalchemy import desc
 
 from db.db import session_factory
-from db.models import User, LoginStat, Role
-from schemas.user import UserModel
+from db.models import User, UserAdmin, LoginStat, Role
+from schemas.user import UserModel, UserAdminModel
 
 
 class DBService:
@@ -14,6 +14,14 @@ class DBService:
 
     def get_user_by_username(self, username: str) -> UserModel | None:
         user = self.db.query(User).filter(User.username == username).first()
+        if not user:
+            return None
+        user_model = UserModel.from_orm(user)
+        user_model.id = str(user_model.id)
+        return user_model
+
+    def get_superuser_by_username(self, username: str) -> UserModel | None:
+        user = self.db.query(UserAdmin).filter(UserAdmin.username == username).first()
         if not user:
             return None
         user_model = UserModel.from_orm(user)
@@ -37,6 +45,20 @@ class DBService:
         self.db.add(new_user)
         self.db.commit()
         return new_user.id
+
+    def create_superuser(self, username: str, password: str,
+                         last_name: str | None = None, first_name: str | None = None) -> UUID:
+        new_user = UserAdmin(username=username,
+                             password=password,
+                             last_name=last_name,
+                             first_name=first_name)
+        self.db.add(new_user)
+        self.db.commit()
+        return new_user.id
+
+    def get_superusers_from_db(self) -> list[UserAdminModel]:
+        super_users_orm = self.db.query(UserAdmin).all()
+        return list(map(UserAdminModel.from_orm, super_users_orm))
 
     def update_user(self, user_id: str, username: str | None = None, password: str | None = None,
                     last_name: str | None = None, first_name: str | None = None):
