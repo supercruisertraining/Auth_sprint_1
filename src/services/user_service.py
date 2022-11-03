@@ -33,6 +33,13 @@ class UserService:
             new_id = str(new_id)
         return new_id
 
+    def login_superuser(self, username: str, password: str) -> UserModel | None:
+        exist_user = self.db_service.get_superuser_by_username(username)
+        if exist_user:
+            if self._check_password(password, exist_user.password):
+                return exist_user
+        return None
+
     def validate_to_create_superuser(self, user: SuperUserCreationModel):
         if len(user.password) < 6:
             return False, "Password should not contain less 6 characters"
@@ -64,6 +71,9 @@ class UserService:
 
     def get_user_by_user_id(self, user_id: str):
         return self.db_service.get_user_by_id(user_id)
+
+    def get_superuser_by_user_id(self, user_id: str):
+        return self.db_service.get_superuser_by_id(user_id)
 
     def get_login_stat_list(self, user_id: str, page_size: int, page_number: int) -> list[dict]:
         offset = (page_number - 1) * page_size

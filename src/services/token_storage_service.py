@@ -22,8 +22,9 @@ class BaseTokenStorage(ABC):
 
 class RedisTokenStorage(BaseTokenStorage):
 
-    redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=config.REDIS_DB_NUM)
-    redis_background = Redis(host=config.REDIS_BG_HOST, port=config.REDIS_BG_PORT, db=config.REDIS_BG_DB_NUM)
+    def __init__(self, redis: Redis, redis_background: Redis):
+        self.redis = redis
+        self.redis_background = redis_background
 
     def push_token(self, user_id: str, token_data: Token) -> None:
         self.redis.setex(name=token_data.token,
@@ -59,16 +60,23 @@ class RedisTokenStorage(BaseTokenStorage):
         return config.REDIS_BG_FORMAT_KEY.format(token=token, user_id=user_id)
 
     def __del__(self):
-        try:
-            self.redis.close()
-        except:
-            pass
-        try:
-            self.redis_background.close()
-        except:
-            pass
+        for conn in (self.redis, self.redis_background):
+            try:
+                conn.close()
+            except:
+                pass
 
 
 @lru_cache
 def get_token_storage_service():
-    return RedisTokenStorage()
+    redis = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=config.REDIS_DB_NUM)
+    redis_background = Redis(host=config.REDIS_BG_HOST, port=config.REDIS_BG_PORT, db=config.REDIS_BG_DB_NUM)
+    return RedisTokenStorage(redis=redis, redis_background=redis_background)
+
+
+@lru_cache
+def get_admin_token_storage_service():
+    redis = Redis(host=config.REDIS_ADMIN_HOST, port=config.REDIS_ADMIN_PORT, db=config.REDIS_ADMIN_DB_NUM)
+    redis_background = Redis(host=config.REDIS_ADMIN_BG_HOST, port=config.REDIS_ADMIN_BG_PORT,
+                             db=config.REDIS_ADMIN_BG_DB_NUM)
+    return RedisTokenStorage(redis=redis, redis_background=redis_background)
