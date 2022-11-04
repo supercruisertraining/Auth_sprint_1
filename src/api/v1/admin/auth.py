@@ -46,12 +46,7 @@ def user_login():
         token_storage_service.pop_token(token)
 
     token_storage_service.push_token(user_id=user_dto.id, token_data=jwt_token_pair.refresh_jwt_token)
-    user_agent_obj = parse(str(request.user_agent)) if request.user_agent_class else None
-    user_service.add_login_record(user_id=user_dto.id,
-                                  user_ip=request.remote_addr,
-                                  user_os=user_agent_obj.get_os() if user_agent_obj else None,
-                                  user_browser=user_agent_obj.get_browser() if user_agent_obj else None,
-                                  user_device=user_agent_obj.get_device() if user_agent_obj else None)
+
     return jsonify(jwt_token_pair.render_to_user()), HTTPStatus.OK
 
 

@@ -10,6 +10,10 @@ class TestConfig(BaseSettings):
     API_PATH_HARD_LOGOUT_USER: str = "/api/v1/logout_hard"
     API_PATH_REFRESH: str = "/api/v1/refresh"
     API_ASSIGN_USER_ROLE: str = "/api/v1/assign_role"
+    API_GET_ROLES: str = "/api/v1/get_roles"
+    API_ADMIN_LOGIN: str = "/admin/api/v1/login"
+    API_ADMIN_LOGOUT: str = "/admin/api/v1/logout"
+    API_PATH_ADMIN_REFRESH: str = "/admin/api/v1/refresh"
 
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
@@ -18,6 +22,14 @@ class TestConfig(BaseSettings):
     REDIS_BG_HOST: str = "127.0.0.1"
     REDIS_BG_PORT: int = 6379
     REDIS_BG_DB_NUM: int = 6
+
+    # Для админки
+    REDIS_ADMIN_HOST: str = "127.0.0.1"
+    REDIS_ADMIN_PORT: int = 6379
+    REDIS_ADMIN_DB_NUM: int = 7
+    REDIS_ADMIN_BG_HOST: str = "127.0.0.1"
+    REDIS_ADMIN_BG_PORT: int = 6379
+    REDIS_ADMIN_BG_DB_NUM: int = 8
 
 
 test_config = TestConfig()

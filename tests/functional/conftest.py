@@ -8,9 +8,11 @@ from sqlalchemy import delete
 
 from tests.functional.settings import test_config
 from src.db.db import session_factory
-from src.db.models import Role, User
+from src.db.models import Role, User, UserAdmin
+from utils.cli_admin import create_superuser
 from tests.functional.test_data.user_test_data import test_create_users_list
 from tests.functional.test_data.role_test_data import test_role_names
+from tests.functional.test_data.superuser_test_data import admin_user_1
 
 
 @pytest.fixture(scope="session")
@@ -32,7 +34,7 @@ def create_role():
             session.commit()
     except Exception:
         pass
-    yield
+    yield test_role_names
     try:
         with session_factory() as session:
             stmt = delete(Role).where(Role.role_name.in_(test_role_names))
@@ -87,3 +89,32 @@ async def login_test_users(create_test_users):
     return test_users_login_list
 
 
+@pytest_asyncio.fixture(scope="session")
+async def create_test_superuser(create_role):
+    superuser_id = create_superuser(username=admin_user_1["username"], password=admin_user_1["password"])
+    yield {"id": superuser_id, "username": admin_user_1["username"], "password": admin_user_1["password"]}
+
+    # Удаляем админа
+    with session_factory() as session:
+        target_user = session.query(UserAdmin).get(superuser_id)
+        session.delete(target_user)
+        session.commit()
+
+
+@pytest_asyncio.fixture
+async def login_test_superuser(create_test_superuser):
+    test_superuser_data = create_test_superuser
+    url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_LOGIN)
+    async with ClientSession() as session:
+        async with session.post(url,
+                                json={
+                                    "username": test_superuser_data["username"],
+                                    "password": test_superuser_data["password"]
+                                }
+                                ) as response:
+            body = await response.json()
+            return {"user_id": test_superuser_data["id"],
+                    "username": test_superuser_data["username"],
+                    "password": test_superuser_data["password"],
+                    "access_token": body["access_token"],
+                    "refresh_token": body["refresh_token"]}

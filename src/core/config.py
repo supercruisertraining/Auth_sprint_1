@@ -19,6 +19,14 @@ class Config(BaseSettings):
     REDIS_BG_DB_NUM: int = 6
     REDIS_BG_FORMAT_KEY: str = "{user_id}::{token}"
 
+    # Для админки
+    REDIS_ADMIN_HOST: str = "127.0.0.1"
+    REDIS_ADMIN_PORT: int = 6379
+    REDIS_ADMIN_DB_NUM: int = 7
+    REDIS_ADMIN_BG_HOST: str = "127.0.0.1"
+    REDIS_ADMIN_BG_PORT: int = 6379
+    REDIS_ADMIN_BG_DB_NUM: int = 8
+
     JWT_SECRET: str = "secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TTL_MINUTES: int = 5

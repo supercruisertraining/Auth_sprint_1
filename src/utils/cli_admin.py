@@ -12,6 +12,11 @@ admin_cli_blueprint = Blueprint('admin_cli', __name__)
 @click.password_option()
 @click.option("--first_name")
 @click.option("--last_name")
+def create_superuser_cli(username: str, password: str, first_name: str = "", last_name: str = ""):
+    """Creates a superuser"""
+    return create_superuser(username, password, first_name, last_name)
+
+
 def create_superuser(username: str, password: str, first_name: str = "", last_name: str = ""):
     """Creates a superuser"""
     super_user = SuperUserCreationModel(username=username, password=password,
@@ -23,6 +28,7 @@ def create_superuser(username: str, password: str, first_name: str = "", last_na
         return
     super_user_id = user_service.create_superuser(super_user)
     print(f"Superuser {username} created successfully!\nSuperUser ID: {super_user_id}")
+    return super_user_id
 
 
 @admin_cli_blueprint.cli.command("list_superusers")

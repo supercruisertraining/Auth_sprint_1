@@ -106,7 +106,8 @@ class DBService:
         self.db.commit()
 
     def admin_delete_role(self, role_name):
-        self.db.query(Role).get(role_name).delete()
+        target_role = self.db.query(Role).get(role_name)
+        self.db.delete(target_role)
         self.db.commit()
 
 
