@@ -14,6 +14,8 @@ class TestConfig(BaseSettings):
     API_ADMIN_LOGIN: str = "/admin/api/v1/login"
     API_ADMIN_LOGOUT: str = "/admin/api/v1/logout"
     API_PATH_ADMIN_REFRESH: str = "/admin/api/v1/refresh"
+    API_ADMIN_CREATE_ROLE: str = "/admin/api/v1/create_role"
+    API_ADMIN_DELETE_ROLE: str = "/admin/api/v1/delete_role"
 
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379

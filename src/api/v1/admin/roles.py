@@ -28,7 +28,7 @@ def create_role(*args, **kwargs):
         204:
             description: Success
     """
-    role_name = request.json()["role_name"]
+    role_name = request.json["role_name"]
     db_service = get_db_service()
     db_service.admin_create_role(role_name)
     return '', HTTPStatus.NO_CONTENT
@@ -53,7 +53,7 @@ def delete_role(*args, **kwargs):
         204:
             description: Success
     """
-    role_name = request.json()["role_name"]
+    role_name = request.json["role_name"]
     db_service = get_db_service()
     db_service.admin_delete_role(role_name)
     return '', HTTPStatus.NO_CONTENT
