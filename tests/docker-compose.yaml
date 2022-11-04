@@ -10,12 +10,19 @@ services:
       - DB_PORT=${DB_PORT}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_BG_HOST=${REDIS_HOST}
+      - REDIS_ADMIN_HOST=${REDIS_HOST}
+      - REDIS_ADMIN_BG_HOST=${REDIS_HOST}
       - JWT_SECRET=${JWT_SECRET}
+      - PYTHONPATH=/app/src
     working_dir: /app/src
     depends_on:
       - redis
       - postgres
-    command: gunicorn --workers 4 --bind 0.0.0.0:8000 wsgi_app:app
+    command: >
+      sh -c "python3 /app/waiters/wait_for_redis.py && \
+             python3 /app/waiters/wait_for_postgresql.py && \
+             alembic -c ../alembic.ini upgrade head && \
+             gunicorn --workers 4 --bind 0.0.0.0:8000 wsgi_app:app"
 
   test:
     image: auth
@@ -28,13 +35,19 @@ services:
       - DB_PORT=${DB_PORT}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_BG_HOST=${REDIS_HOST}
+      - REDIS_ADMIN_HOST=${REDIS_HOST}
+      - REDIS_ADMIN_BG_HOST=${REDIS_HOST}
+      - JWT_SECRET=${JWT_SECRET}
       - PYTHONPATH=/app/src
     working_dir: /app
     depends_on:
       - auth
       - redis
       - postgres
-    command: pytest tests/functional/src
+    command: >
+      sh -c "python3 /app/waiters/wait_for_redis.py && \
+             python3 /app/waiters/wait_for_postgresql.py && \
+             pytest tests/functional/src"
 
   redis:
     image: "redis:alpine"
