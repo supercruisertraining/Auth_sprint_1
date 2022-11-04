@@ -33,11 +33,11 @@ def user_login():
             description: Success
     """
     user_service = get_user_service()
-    user_dto = user_service.login_user(username=request.json["username"], password=request.json["password"])
+    user_dto = user_service.login_superuser(username=request.json["username"], password=request.json["password"])
     if not user_dto:
         return jsonify({"message": "Admin username or password are wrong"}), HTTPStatus.NOT_FOUND
     token_service = get_token_service(user_id=user_dto.id)
-    jwt_token_pair = token_service.generate_jwt_key_pair(user_role=user_dto.role)
+    jwt_token_pair = token_service.generate_jwt_key_pair(is_admin=True)
     token_storage_service = get_admin_token_storage_service()
 
     # При входе администратора в систему поддерживаем только одно авторизованное устройство.
@@ -89,7 +89,7 @@ def refresh_tokens():
     if not user_dto:
         return jsonify({"message": "No such user"}), HTTPStatus.NOT_FOUND
     token_service = get_token_service(user_id=user_id)
-    jwt_token_pair = token_service.generate_jwt_key_pair(user_role=user_dto.role)
+    jwt_token_pair = token_service.generate_jwt_key_pair(is_admin=True)
     token_storage_service = get_admin_token_storage_service()
     token_storage_service.push_token(user_id=user_id, token_data=jwt_token_pair.refresh_jwt_token)
     return jsonify(jwt_token_pair.render_to_user()), HTTPStatus.OK

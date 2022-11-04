@@ -85,7 +85,7 @@ class UserService:
     def assign_role(self, user_id: str, role: str):
         if not self.db_service.get_role(role):
             raise Exception("No such role")
-        self.db_service.update_role(user_id, role)
+        self.db_service.update_user_role(user_id, role)
 
     def _check_password(self, provided_password, user_password):
         return check_password_hash(user_password, provided_password)

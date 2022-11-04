@@ -6,6 +6,7 @@ from sqlalchemy import desc
 from db.db import session_factory
 from db.models import User, UserAdmin, LoginStat, Role
 from schemas.user import UserModel, UserAdminModel
+from schemas.role import Role as RoleSchema
 
 
 class DBService:
@@ -92,9 +93,20 @@ class DBService:
     def get_role(self, role_name: str):
         return self.db.query(Role).get(role_name)
 
-    def update_role(self, user_id: str, role: str):
+    def get_roles_list(self) -> list[Role]:
+        return list(map(RoleSchema.from_orm, self.db.query(Role).all()))
+
+    def update_user_role(self, user_id: str, role: str):
         user_obj = self.db.query(User).get(user_id)
         user_obj.role = role
+        self.db.commit()
+
+    def admin_create_role(self, role_name):
+        self.db.add(Role(role_name=role_name))
+        self.db.commit()
+
+    def admin_delete_role(self, role_name):
+        self.db.query(Role).get(role_name).delete()
         self.db.commit()
 
 
