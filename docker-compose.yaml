@@ -28,6 +28,15 @@ services:
     ports:
       - "6379:6379"
 
+  postgres:
+    image: "postgres:13"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql:ro
+
   nginx:
     image: nginx
     ports:
