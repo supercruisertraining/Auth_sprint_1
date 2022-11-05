@@ -11,7 +11,7 @@ from src.db.db import session_factory
 from src.db.models import Role, User, UserAdmin
 from utils.cli_admin import create_superuser
 from tests.functional.test_data.user_test_data import test_create_users_list
-from tests.functional.test_data.role_test_data import test_role_names
+from tests.functional.test_data.role_test_data import test_roles
 from tests.functional.test_data.superuser_test_data import admin_user_1
 
 
@@ -28,16 +28,18 @@ def event_loop():
 def create_role():
     try:
         with session_factory() as session:
-            for role_name in test_role_names:
-                role = Role(role_name=role_name)
+            for test_role in test_roles:
+                role = Role(role_name=test_role["role_name"],
+                            position=test_role["position"],
+                            description=test_role.get("description"))
                 session.add(role)
             session.commit()
     except Exception:
         pass
-    yield test_role_names
+    yield test_roles
     try:
         with session_factory() as session:
-            stmt = delete(Role).where(Role.role_name.in_(test_role_names))
+            stmt = delete(Role).where(Role.role_name.in_([role["role_name"] for role in test_roles]))
             session.execute(stmt)
             session.commit()
     except Exception:

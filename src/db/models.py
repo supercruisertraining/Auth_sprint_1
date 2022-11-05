@@ -11,6 +11,8 @@ class Role(Base):
     __tablename__ = "roles"
     __table_args__ = {"schema": "auth"}
     role_name = Column(String, primary_key=True)
+    description = Column(String, nullable=True)
+    position = Column(Integer, unique=True, nullable=False)
 
 
 class User(Base):

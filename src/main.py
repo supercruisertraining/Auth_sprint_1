@@ -6,6 +6,7 @@ from api.v1.auth import auth_blueprint_v1
 from api.v1.roles import roles_blueprint_v1
 from api.v1.admin.auth import admin_auth_blueprint_v1
 from api.v1.admin.roles import admin_role_blueprint_v1
+from api.v1.admin.permissions import admin_permissions_blueprint_v1
 from utils.cli_admin import admin_cli_blueprint
 
 
@@ -18,6 +19,7 @@ app.register_blueprint(roles_blueprint_v1)
 app.register_blueprint(admin_cli_blueprint)
 app.register_blueprint(admin_auth_blueprint_v1)
 app.register_blueprint(admin_role_blueprint_v1)
+app.register_blueprint(admin_permissions_blueprint_v1)
 app.config["SWAGGER"] = {
     "title": "AUTH Service",
     "specs_route": "/docs/",

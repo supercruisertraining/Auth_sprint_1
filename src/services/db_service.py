@@ -90,10 +90,10 @@ class DBService:
         return self.db.query(LoginStat).filter(LoginStat.user_id == user_id)\
             .order_by(desc(LoginStat.created_at_utc)).limit(limit).offset(offset).all()
 
-    def get_role(self, role_name: str):
+    def get_role(self, role_name: str) -> Role:
         return self.db.query(Role).get(role_name)
 
-    def get_roles_list(self) -> list[Role]:
+    def get_roles_list(self) -> list[RoleSchema]:
         return list(map(RoleSchema.from_orm, self.db.query(Role).all()))
 
     def update_user_role(self, user_id: str, role: str):
@@ -101,14 +101,23 @@ class DBService:
         user_obj.role = role
         self.db.commit()
 
-    def admin_create_role(self, role_name):
-        self.db.add(Role(role_name=role_name))
+    def admin_create_role(self, role_name: str, position: int, description: str | None = None):
+        self.db.add(Role(role_name=role_name, position=position, description=description))
         self.db.commit()
 
     def admin_delete_role(self, role_name):
         target_role = self.db.query(Role).get(role_name)
         self.db.delete(target_role)
         self.db.commit()
+
+    def admin_update_role(self, role_name: str, position: int | None = None, description: str | None = None):
+        if position or description:
+            role = self.db.query(Role).get(role_name)
+            if description:
+                role.description = description
+            if position:
+                role.position = position
+            self.db.commit()
 
 
 @lru_cache

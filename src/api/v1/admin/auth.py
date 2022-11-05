@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 import jwt
 from flask import request, jsonify, Blueprint
-from user_agents import parse
 
 from services.user_service import get_user_service
 from services.token_service import get_token_service

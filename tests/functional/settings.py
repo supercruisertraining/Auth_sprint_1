@@ -9,13 +9,15 @@ class TestConfig(BaseSettings):
     API_PATH_SOFT_LOGOUT_USER: str = "/api/v1/logout"
     API_PATH_HARD_LOGOUT_USER: str = "/api/v1/logout_hard"
     API_PATH_REFRESH: str = "/api/v1/refresh"
-    API_ASSIGN_USER_ROLE: str = "/api/v1/assign_role"
     API_GET_ROLES: str = "/api/v1/get_roles"
     API_ADMIN_LOGIN: str = "/admin/api/v1/login"
     API_ADMIN_LOGOUT: str = "/admin/api/v1/logout"
     API_PATH_ADMIN_REFRESH: str = "/admin/api/v1/refresh"
     API_ADMIN_CREATE_ROLE: str = "/admin/api/v1/create_role"
     API_ADMIN_DELETE_ROLE: str = "/admin/api/v1/delete_role"
+    API_ADMIN_ASSIGN_USER_ROLE: str = "/admin/api/v1/assign_role"
+    API_ADMIN_UPDATE_ROLE: str = "/admin/api/v1/update_role"
+    API_ADMIN_HAS_PERMISSIONS: str = "/admin/api/v1/check_permission"
 
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
