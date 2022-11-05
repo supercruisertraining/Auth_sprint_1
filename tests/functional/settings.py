@@ -3,6 +3,7 @@ from pydantic import BaseSettings
 
 class TestConfig(BaseSettings):
     API_BASE_URL: str = "http://127.0.0.1:5000"
+    API_HEALTH_CHECK_PATH: str = "/health_check"
     API_PATH_CREATE_USER: str = "/api/v1/create_user"
     API_PATH_LOGIN_USER: str = "/api/v1/login"
     API_PATH_UPDATE_USER: str = "/api/v1/update_user"

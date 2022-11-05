@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import Flask
 from flasgger import Swagger
 
@@ -28,6 +30,11 @@ SWAGGER_TEMPLATE = {"securityDefinitions": {"APIKeyHeader": {"type": "apiKey",
                                                              "name": "Authorization",
                                                              "in": "header"}}}
 swagger = Swagger(app, template=SWAGGER_TEMPLATE)
+
+
+@app.route("/health_check", methods=["GET"])
+def health_check():
+    return '', HTTPStatus.NO_CONTENT
 
 
 if __name__ == '__main__':
