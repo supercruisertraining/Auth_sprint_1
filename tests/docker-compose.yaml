@@ -38,14 +38,15 @@ services:
       - REDIS_ADMIN_HOST=${REDIS_HOST}
       - REDIS_ADMIN_BG_HOST=${REDIS_HOST}
       - JWT_SECRET=${JWT_SECRET}
-      - PYTHONPATH=/app/src
+      - PYTHONPATH=/app:/app/src
     working_dir: /app
     depends_on:
       - auth
       - redis
       - postgres
     command: >
-      sh -c "python3 /app/waiters/wait_for_redis.py && \
+      sh -c "python3 /app/waiters/test_wait_for_auth_api.py && \
+             python3 /app/waiters/wait_for_redis.py && \
              python3 /app/waiters/wait_for_postgresql.py && \
              pytest tests/functional/src"
 
