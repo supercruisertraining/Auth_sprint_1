@@ -45,6 +45,8 @@ class Config(BaseSettings):
     OAUTH2_GOOGLE_SCOPE: str = "openid email"
     OAUTH2_GOOGLE_DISCOVERY_ENDPOINT: str | None = "https://accounts.google.com/.well-known/openid-configuration"
     OAUTH2_GOOGLE_AUTHORIZATION_ENDPOINT: str | None = None
+    OAUTH2_GOOGLE_TOKEN_ENDPOINT: str | None = None
+    OAUTH2_GOOGLE_USERINFO_ENDPOINT: str | None = None
 
     OAUTH2_YANDEX_REDIRECT_PATH: str = "/api/v1/auth_social/yandex/verification_code"
     OAUTH2_YANDEX_CLIENT_ID: str = "da38ffcf656d414cb3cb6c5d5448bd3e"
@@ -52,22 +54,30 @@ class Config(BaseSettings):
     OAUTH2_YANDEX_SCOPE: str = "login:email login:info"
     OAUTH2_YANDEX_DISCOVERY_ENDPOINT: str | None = None
     OAUTH2_YANDEX_AUTHORIZATION_ENDPOINT: str | None = "https://oauth.yandex.ru/authorize"
+    OAUTH2_YANDEX_TOKEN_ENDPOINT: str | None = "https://oauth.yandex.ru/token"
+    OAUTH2_YANDEX_USERINFO_ENDPOINT: str | None = "https://login.yandex.ru/info"
 
 
 config = Config()
 
 
 class SocialOauthTypeEnum(Enum):
-    google = {"redirect_uri": urljoin(f"https://{config.API_BASE}", config.OAUTH2_GOOGLE_REDIRECT_PATH),
+    google = {"redirect_uri": urljoin(f"http://{config.API_BASE}", config.OAUTH2_GOOGLE_REDIRECT_PATH),
               "scope": config.OAUTH2_GOOGLE_SCOPE,
               "discovery_endpoint": config.OAUTH2_GOOGLE_DISCOVERY_ENDPOINT,
               "authorization_endpoint": config.OAUTH2_GOOGLE_AUTHORIZATION_ENDPOINT,
+              "token_endpoint": config.OAUTH2_GOOGLE_TOKEN_ENDPOINT,
+              "userinfo_endpoint": config.OAUTH2_GOOGLE_USERINFO_ENDPOINT,
               "client_id": config.OAUTH2_GOOGLE_CLIENT_ID,
-              "client_secret": config.OAUTH2_GOOGLE_CLIENT_SECRET}
+              "client_secret": config.OAUTH2_GOOGLE_CLIENT_SECRET,
+              "openid": True}
 
-    yandex = {"redirect_uri": urljoin(f"https://{config.API_BASE}", config.OAUTH2_YANDEX_REDIRECT_PATH),
+    yandex = {"redirect_uri": urljoin(f"http://{config.API_BASE}", config.OAUTH2_YANDEX_REDIRECT_PATH),
               "scope": config.OAUTH2_YANDEX_SCOPE,
               "discovery_endpoint": config.OAUTH2_YANDEX_DISCOVERY_ENDPOINT,
               "authorization_endpoint": config.OAUTH2_YANDEX_AUTHORIZATION_ENDPOINT,
+              "token_endpoint": config.OAUTH2_YANDEX_TOKEN_ENDPOINT,
+              "userinfo_endpoint": config.OAUTH2_YANDEX_USERINFO_ENDPOINT,
               "client_id": config.OAUTH2_YANDEX_CLIENT_ID,
-              "client_secret": config.OAUTH2_YANDEX_CLIENT_SECRET}
+              "client_secret": config.OAUTH2_YANDEX_CLIENT_SECRET,
+              "openid": False}

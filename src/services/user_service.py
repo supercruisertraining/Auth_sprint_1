@@ -33,6 +33,12 @@ class UserService:
             new_id = str(new_id)
         return new_id
 
+    def create_user_from_social(self, username: str, external_id: str, email: str):
+        new_id = self.db_service.create_user_from_social(username=username, email=email, external_id=external_id)
+        if new_id:
+            new_id = str(new_id)
+        return new_id
+
     def login_superuser(self, username: str, password: str) -> UserModel | None:
         exist_user = self.db_service.get_superuser_by_username(username)
         if exist_user:
@@ -74,6 +80,9 @@ class UserService:
 
     def get_superuser_by_user_id(self, user_id: str):
         return self.db_service.get_superuser_by_id(user_id)
+
+    def get_user_by_social_id(self, social_id: str):
+        return self.db_service.get_user_by_social_id(social_id)
 
     def get_login_stat_list(self, user_id: str, page_size: int, page_number: int) -> list[dict]:
         offset = (page_number - 1) * page_size

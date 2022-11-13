@@ -4,8 +4,8 @@ from pydantic import BaseModel
 
 
 class UserRegisterModel(BaseModel):
-    username: str
-    password: str
+    username: str | None
+    password: str | None
     email: str | None = None
     first_name: str | None = None
     last_name: str | None = None

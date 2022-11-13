@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import desc
 
 from db.db import session_factory
-from db.models import User, UserAdmin, LoginStat, Role, Password
+from db.models import User, UserAdmin, LoginStat, Role, Password, SocialUserId
 from schemas.user import UserModel, UserAdminModel
 from schemas.role import Role as RoleSchema
 
@@ -57,6 +57,13 @@ class DBService:
         user_model.id = str(user_model.id)
         return user_model
 
+    def get_user_by_social_id(self, social_id: str) -> UserModel | None:
+        social_user_id_data = self.db.query(SocialUserId).filter(SocialUserId.social_id == social_id).first()
+        if not social_user_id_data:
+            return None
+        return self.get_user_by_id(social_user_id_data.user_id)
+
+
     def create_user(self, username: str, password: str, email: str | None,
                     last_name: str | None = None, first_name: str | None = None) -> UUID:
         new_user = User(username=username,
@@ -66,6 +73,16 @@ class DBService:
         self.db.add(new_user)
         self.db.flush()
         new_password = Password(user_id=new_user.id, password=password)
+        self.db.add(new_password)
+        self.db.commit()
+        return new_user.id
+
+    def create_user_from_social(self, username: str, email: str, external_id: str) -> str:
+        new_user = User(username=username,
+                        email=email)
+        self.db.add(new_user)
+        self.db.flush()
+        new_password = SocialUserId(social_id=external_id, user_id=new_user.id)
         self.db.add(new_password)
         self.db.commit()
         return new_user.id
