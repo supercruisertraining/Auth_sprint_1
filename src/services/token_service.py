@@ -32,7 +32,7 @@ class JWTService:
         exp_utc = datetime.utcnow() + timedelta(seconds=JWT_REFRESH_TTL_td.total_seconds())
         payload = {
             "exp": exp_utc,
-            "iat": datetime.utcnow(),
+            "iat": iat_utc,
             "user_id": self.user_id,
         }
         token = jwt.encode(payload=payload, key=config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
@@ -43,13 +43,14 @@ class JWTService:
         jwt_refresh = self._generate_jwt_refresh_token()
         return JWTTokenPair(access_jwt_token=jwt_access, refresh_jwt_token=jwt_refresh)
 
-    def generate_oauth2_state(self) -> str:
+    def generate_oauth2_state(self, social_type: str) -> str:
         iat_utc = datetime.utcnow()
         exp_utc = datetime.utcnow() + timedelta(seconds=JWT_OAUTH2_STATE_TTL_td.total_seconds())
         payload = {
             "exp": exp_utc,
-            "iat": datetime.utcnow(),
+            "iat": iat_utc,
             "oauth2": True,
+            "type": social_type,
         }
         return jwt.encode(payload=payload, key=config.JWT_OAUTH2_STATE_SECRET, algorithm=config.JWT_ALGORITHM)
 

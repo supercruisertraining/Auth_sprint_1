@@ -28,7 +28,7 @@ class UserService:
 
     def create_user(self, user: UserRegisterModel) -> str:
         new_id = self.db_service.create_user(username=user.username, password=self._cook_password_to_db(user.password),
-                                             first_name=user.first_name, last_name=user.last_name)
+                                             email=user.email, first_name=user.first_name, last_name=user.last_name)
         if new_id:
             new_id = str(new_id)
         return new_id

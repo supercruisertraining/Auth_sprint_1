@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 class Config(BaseSettings):
     DEBUG: bool = False
 
-    API_BASE: str = "localhost:8888"
+    API_BASE: str = "localhost:5000"
 
     DB_USER: str = "app"
     DB_PASSWORD: str = "123qwe"
@@ -39,11 +39,19 @@ class Config(BaseSettings):
     JWT_OAUTH2_STATE_SECRET: str = "secret_oauth2"
     JWT_OAUTH2_STATE_TTL_MINUTES: int = 10
 
-    OAUTH2_GOOGLE_REDIRECT_PATH: str = "/auth/google/verification_code"
+    OAUTH2_GOOGLE_REDIRECT_PATH: str = "/api/v1/auth_social/google/verification_code"
     OAUTH2_GOOGLE_CLIENT_ID: str = "852912121210-6ddnl8gighlq1ipdjid6mltssn1iu73e.apps.googleusercontent.com"
     OAUTH2_GOOGLE_CLIENT_SECRET: str = "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"
     OAUTH2_GOOGLE_SCOPE: str = "openid email"
-    OAUTH2_GOOGLE_DISCOVERY_ENDPOINT: str = "https://accounts.google.com/.well-known/openid-configuration"
+    OAUTH2_GOOGLE_DISCOVERY_ENDPOINT: str | None = "https://accounts.google.com/.well-known/openid-configuration"
+    OAUTH2_GOOGLE_AUTHORIZATION_ENDPOINT: str | None = None
+
+    OAUTH2_YANDEX_REDIRECT_PATH: str = "/api/v1/auth_social/yandex/verification_code"
+    OAUTH2_YANDEX_CLIENT_ID: str = "da38ffcf656d414cb3cb6c5d5448bd3e"
+    OAUTH2_YANDEX_CLIENT_SECRET: str = "83770970e2274e48b8a168ac99d447e1"
+    OAUTH2_YANDEX_SCOPE: str = "login:email login:info"
+    OAUTH2_YANDEX_DISCOVERY_ENDPOINT: str | None = None
+    OAUTH2_YANDEX_AUTHORIZATION_ENDPOINT: str | None = "https://oauth.yandex.ru/authorize"
 
 
 config = Config()
@@ -53,5 +61,13 @@ class SocialOauthTypeEnum(Enum):
     google = {"redirect_uri": urljoin(f"https://{config.API_BASE}", config.OAUTH2_GOOGLE_REDIRECT_PATH),
               "scope": config.OAUTH2_GOOGLE_SCOPE,
               "discovery_endpoint": config.OAUTH2_GOOGLE_DISCOVERY_ENDPOINT,
+              "authorization_endpoint": config.OAUTH2_GOOGLE_AUTHORIZATION_ENDPOINT,
               "client_id": config.OAUTH2_GOOGLE_CLIENT_ID,
               "client_secret": config.OAUTH2_GOOGLE_CLIENT_SECRET}
+
+    yandex = {"redirect_uri": urljoin(f"https://{config.API_BASE}", config.OAUTH2_YANDEX_REDIRECT_PATH),
+              "scope": config.OAUTH2_YANDEX_SCOPE,
+              "discovery_endpoint": config.OAUTH2_YANDEX_DISCOVERY_ENDPOINT,
+              "authorization_endpoint": config.OAUTH2_YANDEX_AUTHORIZATION_ENDPOINT,
+              "client_id": config.OAUTH2_YANDEX_CLIENT_ID,
+              "client_secret": config.OAUTH2_YANDEX_CLIENT_SECRET}

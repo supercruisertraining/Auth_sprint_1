@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import desc
 
 from db.db import session_factory
-from db.models import User, UserAdmin, LoginStat, Role
+from db.models import User, UserAdmin, LoginStat, Role, Password
 from schemas.user import UserModel, UserAdminModel
 from schemas.role import Role as RoleSchema
 
@@ -17,7 +17,13 @@ class DBService:
         user = self.db.query(User).filter(User.username == username).first()
         if not user:
             return None
-        user_model = UserModel.from_orm(user)
+        pswd_data = self.db.query(Password).filter(Password.user_id == user.id).first()
+        if pswd_data:
+            password = pswd_data.password
+        else:
+            password = None
+        user_model = UserModel(id=user.id, username=user.username, password=password, email=user.email,
+                               role=user.role, first_name=user.first_name, last_name=user.last_name)
         user_model.id = str(user_model.id)
         return user_model
 
@@ -33,7 +39,13 @@ class DBService:
         user = self.db.query(User).get(user_id)
         if not user:
             return None
-        user_model = UserModel.from_orm(user)
+        pswd_data = self.db.query(Password).filter(Password.user_id == user.id).first()
+        if pswd_data:
+            password = pswd_data.password
+        else:
+            password = None
+        user_model = UserModel(id=user.id, username=user.username, password=password, email=user.email,
+                               role=user.role, first_name=user.first_name, last_name=user.last_name)
         user_model.id = str(user_model.id)
         return user_model
 
@@ -45,13 +57,16 @@ class DBService:
         user_model.id = str(user_model.id)
         return user_model
 
-    def create_user(self, username: str, password: str,
+    def create_user(self, username: str, password: str, email: str | None,
                     last_name: str | None = None, first_name: str | None = None) -> UUID:
         new_user = User(username=username,
-                        password=password,
+                        email=email,
                         last_name=last_name,
                         first_name=first_name)
         self.db.add(new_user)
+        self.db.flush()
+        new_password = Password(user_id=new_user.id, password=password)
+        self.db.add(new_password)
         self.db.commit()
         return new_user.id
 
@@ -72,12 +87,14 @@ class DBService:
     def update_user(self, user_id: str, username: str | None = None, password: str | None = None,
                     last_name: str | None = None, first_name: str | None = None):
         update_dict = {"username": username,
-                       "password": password,
                        "last_name": last_name,
                        "first_name": first_name}
         user_obj = self.db.query(User).get(user_id)
         for key, value in {key: value for key, value in update_dict.items() if value}.items():
             setattr(user_obj, key, value)
+        if password:
+            pswd = self.db.query(Password).filter(Password.user_id == user_id).first()
+            pswd.update({"password": password})
         self.db.commit()
 
     def add_login_record(self, user_id: str, user_ip: str | None, user_os: str | None, user_browser: str | None,

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class UserRegisterModel(BaseModel):
     username: str
     password: str
+    email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
 
@@ -27,7 +28,8 @@ class UserUpdateModel(BaseModel):
 class UserModel(BaseModel):
     id: str | UUID
     username: str
-    password: str
+    password: str | None
+    email: str | None
     role: str | None = None
     first_name: str | None = None
     last_name: str | None = None

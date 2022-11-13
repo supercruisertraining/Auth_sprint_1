@@ -34,8 +34,15 @@ def get_oauth2_uri():
                            client_secret=social_type_data["client_secret"],
                            scope=social_type_data["scope"],
                            redirect_uri=social_type_data["redirect_uri"])
-    authorization_endpoint = requests.get(social_type_data["discovery_endpoint"]).json()["authorization_endpoint"]
-    uri, state = client.create_authorization_url(authorization_endpoint, state=token_service.generate_oauth2_state())
+    authorization_endpoint = social_type_data["authorization_endpoint"]
+    if social_type_data["discovery_endpoint"]:
+        authorization_endpoint = requests.get(social_type_data["discovery_endpoint"]).json()["authorization_endpoint"]
+
+    if not authorization_endpoint:
+        return jsonify({"error": "Something went wrong"}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+    uri, state = client.create_authorization_url(authorization_endpoint,
+                                                 state=token_service.generate_oauth2_state(social_type))
 
     return jsonify({"redirect_url": uri}), HTTPStatus.FOUND
 
@@ -50,3 +57,20 @@ def get_social_types():
             description: Список сторонних ресурсов, доступных для Oauth2 аутентификации
     """
     return jsonify({"social_types": list(SocialOauthTypeEnum.__members__.keys())})
+
+
+@auth_social_blueprint_v1.route("/<string:social_type>/verification_code", methods=["GET"])
+# @verify_oauth2_state
+def create_or_login_user(social_type: str):
+    """
+    Метод позволяет через сторонний сервис войти в систему или зарегистрироваться.
+    ---
+    parameters:
+      - name: social_type
+        in: path
+        type: string
+    responses:
+        200:
+            description: Success
+    """
+    pass
