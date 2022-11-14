@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+from uuid import uuid4
 
 import pytest
 from aiohttp import ClientSession
@@ -14,7 +15,8 @@ async def test_create_role(login_test_superuser):
     new_role = {"role_name": "some_new_role", "position": 100}
     super_user_data = login_test_superuser
     url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_CREATE_ROLE)
-    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}"}) as session:
+    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}",
+                                      "X-Request_id": str(uuid4())}) as session:
         async with session.post(url, json=new_role) as response:
             assert response.ok
     with session_factory() as db_session:
@@ -33,7 +35,8 @@ async def test_delete_role(login_test_superuser):
 
     super_user_data = login_test_superuser
     url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_DELETE_ROLE)
-    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}"}) as session:
+    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}",
+                                      "X-Request_id": str(uuid4())}) as session:
         async with session.delete(url, json={"role_name": new_role["role_name"]}) as response:
             assert response.ok
     with session_factory() as db_session:
@@ -53,7 +56,8 @@ async def test_update_role(login_test_superuser):
 
     super_user_data = login_test_superuser
     url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_UPDATE_ROLE)
-    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}"}) as session:
+    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}",
+                                      "X-Request_id": str(uuid4())}) as session:
         async with session.patch(url, json={"role_name": new_role["role_name"],
                                             "role_description": "test description",
                                             "position": 201}) as response:
@@ -72,7 +76,8 @@ async def test_assign_role(login_test_superuser, create_test_users):
     super_user = login_test_superuser
     url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_ASSIGN_USER_ROLE)
     not_existing_role_name = {"role_name": "not_existing_role", "position": 300}
-    async with ClientSession(headers={"Authorization": f"Bearer {super_user['access_token']}"}) as session:
+    async with ClientSession(headers={"Authorization": f"Bearer {super_user['access_token']}",
+                                      "X-Request_id": str(uuid4())}) as session:
 
         # Проверяем негативный случай: попытка присвоения несуществующей роли
         async with session.patch(url, json={"role_name": not_existing_role_name,

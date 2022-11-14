@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+from uuid import uuid4
 
 import pytest
 from aioredis import Redis
@@ -29,7 +30,8 @@ async def test_update_user(login_test_users):
     users_login_data = login_test_users
     url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_UPDATE_USER)
     for user in users_login_data:
-        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.patch(url, json=update_dict) as response:
                 status = response.status
                 body = await response.json()
@@ -40,7 +42,8 @@ async def test_update_user(login_test_users):
             assert user_obj.role != update_dict["role"]
 
         # Возвращаем изменения назад
-        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.patch(url,
                                      json={"last_name": user["last_name"],
                                            "first_name": user["first_name"]}) as response:

@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: b17addf323b6
+Revision ID: 642faa3d268b
 Revises: 
-Create Date: 2022-11-13 17:59:44.900062
+Create Date: 2022-11-14 22:33:44.813593
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'b17addf323b6'
+revision = '642faa3d268b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -59,10 +59,24 @@ def upgrade() -> None:
     sa.Column('browser', sa.String(), nullable=True),
     sa.Column('device', sa.String(), nullable=True),
     sa.Column('created_at_utc', sa.DateTime(), nullable=False),
+    sa.Column('year', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    schema='auth'
+    sa.PrimaryKeyConstraint('id', 'year'),
+    schema='auth',
+    postgresql_partition_by='RANGE (year)'
     )
+    op.execute("""
+            CREATE TABLE IF NOT EXISTS login_stat_2022 PARTITION OF auth.login_stat
+            FOR VALUES FROM ('2022') TO ('2023');
+            """)
+    op.execute("""
+            CREATE TABLE IF NOT EXISTS login_stat_2023 PARTITION OF auth.login_stat
+            FOR VALUES FROM ('2023') TO ('2024');
+            """)
+    op.execute("""
+            CREATE TABLE IF NOT EXISTS login_stat_2023 PARTITION OF auth.login_stat
+            FOR VALUES FROM ('2024') TO ('2025');
+            """)
     op.create_table('password',
     sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True),

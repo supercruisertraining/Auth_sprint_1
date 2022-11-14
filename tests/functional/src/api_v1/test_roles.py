@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+from uuid import uuid4
 
 import pytest
 from aiohttp import ClientSession
@@ -10,7 +11,7 @@ from tests.functional.settings import test_config
 async def test_get_roles(create_role):
     test_roles = create_role
     url = urljoin(test_config.API_BASE_URL, test_config.API_GET_ROLES)
-    async with ClientSession() as session:
+    async with ClientSession(headers={"X-Request_id": str(uuid4())}) as session:
         async with session.get(url) as response:
             assert response.ok
             body = await response.json()

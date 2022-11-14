@@ -1,5 +1,6 @@
 import asyncio
 from urllib.parse import urljoin
+from uuid import uuid4
 
 import pytest
 import pytest_asyncio
@@ -50,7 +51,7 @@ def create_role():
 async def create_test_users(create_role):
     new_test_users_data = []
     url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_CREATE_USER)
-    async with ClientSession() as session:
+    async with ClientSession(headers={"X-Request_id": str(uuid4())}) as session:
         for user_data in test_create_users_list:
             async with session.post(url, json=user_data) as response:
                 response.raise_for_status()
@@ -72,7 +73,7 @@ async def login_test_users(create_test_users):
     test_users_data = create_test_users
     test_users_login_list = []
     url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_LOGIN_USER)
-    async with ClientSession() as session:
+    async with ClientSession(headers={"X-Request_id": str(uuid4())}) as session:
         for user_data in test_users_data:
             async with session.post(url,
                                     json={
@@ -107,7 +108,7 @@ async def create_test_superuser(create_role):
 async def login_test_superuser(create_test_superuser):
     test_superuser_data = create_test_superuser
     url = urljoin(test_config.API_BASE_URL, test_config.API_ADMIN_LOGIN)
-    async with ClientSession() as session:
+    async with ClientSession(headers={"X-Request_id": str(uuid4())}) as session:
         async with session.post(url,
                                 json={
                                     "username": test_superuser_data["username"],

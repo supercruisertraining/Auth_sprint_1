@@ -1,15 +1,16 @@
 import uuid
+from datetime import date
 
-from sqlalchemy import Column, UniqueConstraint, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, UniqueConstraint, PrimaryKeyConstraint, String, Integer, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import MetaData
 
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="auth"))
 
 
 class Role(Base):
     __tablename__ = "roles"
-    __table_args__ = {"schema": "auth"}
     role_name = Column(String, primary_key=True)
     description = Column(String, nullable=True)
     position = Column(Integer, unique=True, nullable=False)
@@ -17,7 +18,6 @@ class Role(Base):
 
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
@@ -32,7 +32,6 @@ class User(Base):
 
 class Password(Base):
     __tablename__ = "password"
-    __table_args__ = {"schema": "auth"}
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"),  unique=True)
     password = Column(String, nullable=False)
@@ -40,7 +39,6 @@ class Password(Base):
 
 class SocialUserId(Base):
     __tablename__ = "social_user_id"
-    __table_args__ = {"schema": "auth"}
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"))
     social_id = Column(String, unique=True, nullable=False)
@@ -49,7 +47,6 @@ class SocialUserId(Base):
 
 class UserAdmin(Base):
     __tablename__ = "admin_users"
-    __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
@@ -63,12 +60,14 @@ class UserAdmin(Base):
 
 class LoginStat(Base):
     __tablename__ = "login_stat"
-    __table_args__ = {"schema": "auth"}
+    __table_args__ = (PrimaryKeyConstraint('id', 'year'), {"postgresql_partition_by": "RANGE (year)"})
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, autoincrement=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"))
     ip = Column(String, default=None, nullable=True)
     os = Column(String, default=None, nullable=True)
     browser = Column(String, default=None, nullable=True)
     device = Column(String, default=None, nullable=True)
     created_at_utc = Column(DateTime, nullable=False)
+    year = Column(Integer, nullable=False, default=date.today().year)
+

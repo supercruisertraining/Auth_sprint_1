@@ -3,6 +3,7 @@ import jwt
 from urllib.parse import urljoin
 from asyncio import sleep
 from random import randint
+from uuid import uuid4
 
 import pytest
 from aioredis import Redis
@@ -47,7 +48,8 @@ async def test_soft_logout(login_test_users):
     url = urljoin(test_config.API_BASE_URL, test_config.API_PATH_SOFT_LOGOUT_USER)
     redis = Redis(host=test_config.REDIS_HOST, port=test_config.REDIS_PORT, db=test_config.REDIS_DB_NUM)
     for user in users_login_data:
-        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.delete(url, json={"refresh_token": user["refresh_token"]}) as response:
                 assert response.ok
         result = await redis.delete(user["refresh_token"])
@@ -64,14 +66,15 @@ async def test_hard_logout(login_test_users):
     redis = Redis(host=test_config.REDIS_HOST, port=test_config.REDIS_PORT, db=test_config.REDIS_DB_NUM)
     for user in users_login_data:
         await sleep(1)
-        async with ClientSession() as session:
+        async with ClientSession(headers={"X-Request_id": str(uuid4())}) as session:
             # Эмулируем вход еще с одного или нескольких устройств
             for _ in range(randint(1, 5)):
                 async with session.post(url_login,
                                         json={"username": user["username"], "password": user["password"]}) as response:
                     response.raise_for_status()
 
-        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.delete(url, json={"refresh_token": user["refresh_token"]}) as response:
                 assert response.ok
         result = await redis.delete(user["refresh_token"])
@@ -97,7 +100,8 @@ async def test_refresh(login_test_users):
     redis = Redis(host=test_config.REDIS_HOST, port=test_config.REDIS_PORT, db=test_config.REDIS_DB_NUM)
     await sleep(1)
     for user in users_login_data:
-        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {user['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.put(url, json={"refresh_token": user["refresh_token"]}) as response:
                 response.raise_for_status()
                 body = await response.json()

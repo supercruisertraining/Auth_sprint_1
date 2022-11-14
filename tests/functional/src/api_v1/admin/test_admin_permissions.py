@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 from http import HTTPStatus
+from uuid import uuid4
 
 import pytest
 from aiohttp import ClientSession
@@ -20,13 +21,15 @@ async def test_check_permission(login_test_superuser, create_test_users, create_
         user = db_session.query(User).get(test_users[0]["user_id"])
         user.role = test_roles[0]["role_name"]
         db_session.commit()
-    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}"}) as session:
+    async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}",
+                                      "X-Request_id": str(uuid4())}) as session:
         async with session.get(url, params={"user_id": test_users[0]["user_id"],
                                             "resource_role_name": test_roles[0]["role_name"]}) as response:
             assert response.ok
     if len(test_roles) > 1:
 
-        async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}"}) as session:
+        async with ClientSession(headers={"Authorization": f"Bearer {super_user_data['access_token']}",
+                                          "X-Request_id": str(uuid4())}) as session:
             async with session.get(url, params={"user_id": test_users[0]["user_id"],
                                                 "resource_role_name": test_roles[-1]["role_name"]}) as response:
                 assert response.status == HTTPStatus.FORBIDDEN
