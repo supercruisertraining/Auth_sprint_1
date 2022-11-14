@@ -14,6 +14,7 @@ services:
       - REDIS_ADMIN_BG_HOST=${REDIS_HOST}
       - JWT_SECRET=${JWT_SECRET}
       - PYTHONPATH=/app/src
+      - OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST=x-request-id
     working_dir: /app/src
     depends_on:
       - redis

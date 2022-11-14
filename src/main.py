@@ -1,7 +1,13 @@
 from http import HTTPStatus
 
-from flask import Flask
+from flask import Flask, request
 from flasgger import Swagger
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 
 from api.v1.users import users_blueprint_v1
 from api.v1.auth import auth_blueprint_v1
@@ -11,6 +17,7 @@ from api.v1.admin.roles import admin_role_blueprint_v1
 from api.v1.admin.permissions import admin_permissions_blueprint_v1
 from api.v1.auth_social import auth_social_blueprint_v1
 from utils.cli_admin import admin_cli_blueprint
+from core.config import config
 
 
 app = Flask(__name__)
@@ -39,6 +46,29 @@ def health_check():
     return '', HTTPStatus.NO_CONTENT
 
 
+@app.before_request
+def before_request():
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        raise RuntimeError('Request id is required')
+
+
+def configure_tracer() -> None:
+    trace.set_tracer_provider(TracerProvider(resource=Resource.create({SERVICE_NAME: "AUTH"})))
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(
+            JaegerExporter(
+                agent_host_name=config.JAEGER_HOST,
+                agent_port=config.JAEGER_PORT,
+            )
+        )
+    )
+
+
+FlaskInstrumentor().instrument_app(app)
+
+
 if __name__ == '__main__':
+    configure_tracer()
     app.run()
 

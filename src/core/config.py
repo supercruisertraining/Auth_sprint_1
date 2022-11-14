@@ -15,6 +15,9 @@ class Config(BaseSettings):
     DB_NAME: str = "movies_database"
     SCHEMAS_SEARCH_ORDER: str = "auth,content,public"
 
+    JAEGER_HOST: str = "localhost"
+    JAEGER_PORT: int = 6831
+
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
     REDIS_DB_NUM: int = 5
