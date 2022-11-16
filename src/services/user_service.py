@@ -81,7 +81,7 @@ class UserService:
     def get_superuser_by_user_id(self, user_id: str):
         return self.db_service.get_superuser_by_id(user_id)
 
-    def get_user_by_social_id(self, social_id: str):
+    def get_user_by_social_id(self, social_id: str) -> UserModel:
         return self.db_service.get_user_by_social_id(social_id)
 
     def get_login_stat_list(self, user_id: str, page_size: int, page_number: int) -> list[dict]:

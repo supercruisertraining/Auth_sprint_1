@@ -48,9 +48,10 @@ def health_check():
 
 @app.before_request
 def before_request():
-    request_id = request.headers.get('X-Request-Id')
-    if not request_id:
-        raise RuntimeError('Request id is required')
+    if config.DO_TRACE:
+        request_id = request.headers.get('X-Request-Id')
+        if not request_id:
+            raise RuntimeError('Request id is required')
 
 
 def configure_tracer() -> None:

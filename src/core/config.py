@@ -1,6 +1,4 @@
-from enum import Enum
 from pydantic import BaseSettings
-from urllib.parse import urljoin
 
 
 class Config(BaseSettings):
@@ -63,25 +61,3 @@ class Config(BaseSettings):
 
 
 config = Config()
-
-
-class SocialOauthTypeEnum(Enum):
-    google = {"redirect_uri": urljoin(f"http://{config.API_BASE}", config.OAUTH2_GOOGLE_REDIRECT_PATH),
-              "scope": config.OAUTH2_GOOGLE_SCOPE,
-              "discovery_endpoint": config.OAUTH2_GOOGLE_DISCOVERY_ENDPOINT,
-              "authorization_endpoint": config.OAUTH2_GOOGLE_AUTHORIZATION_ENDPOINT,
-              "token_endpoint": config.OAUTH2_GOOGLE_TOKEN_ENDPOINT,
-              "userinfo_endpoint": config.OAUTH2_GOOGLE_USERINFO_ENDPOINT,
-              "client_id": config.OAUTH2_GOOGLE_CLIENT_ID,
-              "client_secret": config.OAUTH2_GOOGLE_CLIENT_SECRET,
-              "openid": True}
-
-    yandex = {"redirect_uri": urljoin(f"http://{config.API_BASE}", config.OAUTH2_YANDEX_REDIRECT_PATH),
-              "scope": config.OAUTH2_YANDEX_SCOPE,
-              "discovery_endpoint": config.OAUTH2_YANDEX_DISCOVERY_ENDPOINT,
-              "authorization_endpoint": config.OAUTH2_YANDEX_AUTHORIZATION_ENDPOINT,
-              "token_endpoint": config.OAUTH2_YANDEX_TOKEN_ENDPOINT,
-              "userinfo_endpoint": config.OAUTH2_YANDEX_USERINFO_ENDPOINT,
-              "client_id": config.OAUTH2_YANDEX_CLIENT_ID,
-              "client_secret": config.OAUTH2_YANDEX_CLIENT_SECRET,
-              "openid": False}

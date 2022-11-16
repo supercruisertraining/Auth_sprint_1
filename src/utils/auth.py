@@ -1,7 +1,6 @@
 from functools import wraps
 
 import jwt
-import requests
 from flask import request, jsonify
 
 from core.config import config
@@ -69,16 +68,3 @@ def verify_oauth2_state(f):
         return f(social_type)
 
     return decorated
-
-
-def get_openid_data(token_data):
-    id_jwt_token = token_data["id_token"]
-    data = jwt.decode(id_jwt_token, options={"verify_signature": False})
-    print(data)
-    return data["sub"], data.get("email"), data.get("login")
-
-
-def get_userinfo_data(token_data, userinfo_endpoint):
-    user_data = requests.get(url=userinfo_endpoint, params={"format": "json"},
-                             headers={"Authorization": f"OAuth {token_data['access_token']}"}).json()
-    return user_data["id"], user_data.get("default_email"), user_data.get("login")

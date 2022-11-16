@@ -27,7 +27,7 @@ class UserUpdateModel(BaseModel):
 
 class UserModel(BaseModel):
     id: str | UUID
-    username: str
+    username: str | None
     password: str | None
     email: str | None
     role: str | None = None
@@ -47,3 +47,10 @@ class UserAdminModel(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Oauth2UserInfo(BaseModel):
+    social_id: str
+    social_type: str
+    username: str | None = None
+    email: str | None = None
