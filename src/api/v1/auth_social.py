@@ -26,9 +26,9 @@ def get_oauth2_uri():
             description: Redirect
     """
     social_type = request.args["social_type"]
-    if social_type not in SocialTypesEnum:
-        return jsonify({"error": "No such social type"}), HTTPStatus.NOT_FOUND
     oauth2_service = get_oauth2_service(social_type)
+    if not oauth2_service:
+        return jsonify({"error": "No such social type"}), HTTPStatus.NOT_FOUND
 
     uri, _ = oauth2_service.get_autorization_url()
 
@@ -44,7 +44,7 @@ def get_social_types():
         200:
             description: Список сторонних ресурсов, доступных для Oauth2 аутентификации
     """
-    return jsonify({"social_types": list(SocialTypesEnum)})
+    return jsonify({"social_types": [e.value for e in SocialTypesEnum]})
 
 
 @auth_social_blueprint_v1.route("/<string:social_type>/verification_code", methods=["GET"])
