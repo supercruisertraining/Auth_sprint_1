@@ -113,7 +113,7 @@ class GoogleOauth2Service(BaseOauth2Service):
         return Oauth2UserInfo(social_type=self.social_type,
                               social_id=f"{self.social_type}::{user_data['sub']}",
                               email=user_data.get("email"),
-                              username=user_data.get("login"))
+                              username=user_data.get("email").split("@")[0] if user_data.get("email") else None)
 
 
 @lru_cache
