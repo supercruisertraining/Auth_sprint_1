@@ -6,7 +6,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 
 from api.v1.users import users_blueprint_v1
@@ -65,10 +65,9 @@ def configure_tracer() -> None:
     )
 
 
-FlaskInstrumentor().instrument_app(app)
-
-
 if __name__ == '__main__':
-    configure_tracer()
+    if config.DO_TRACE:
+        configure_tracer()
+        FlaskInstrumentor().instrument_app(app)
     app.run()
 

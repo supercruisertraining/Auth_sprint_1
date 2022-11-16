@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 class Config(BaseSettings):
     DEBUG: bool = False
+    DO_TRACE: bool = False
 
     API_BASE: str = "localhost:5000"
 
