@@ -44,7 +44,7 @@ def get_social_types():
         200:
             description: Список сторонних ресурсов, доступных для Oauth2 аутентификации
     """
-    return jsonify({"social_types": [e.value for e in SocialTypesEnum]})
+    return jsonify([e.value for e in SocialTypesEnum])
 
 
 @auth_social_blueprint_v1.route("/<string:social_type>/verification_code", methods=["GET"])
