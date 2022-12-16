@@ -18,6 +18,7 @@ services:
       - OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST=x-request-id
       - JAEGER_HOST=${JAEGER_HOST}
       - JAEGER_PORT=${JAEGER_PORT}
+      - SENTRY_DSN=${SENTRY_DSN}
     working_dir: /app/src
     depends_on:
       - redis

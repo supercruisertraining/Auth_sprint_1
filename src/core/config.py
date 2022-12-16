@@ -4,6 +4,7 @@ from pydantic import BaseSettings
 class Config(BaseSettings):
     DEBUG: bool = False
     DO_TRACE: bool = False
+    SENTRY_DSN: str | None = None
 
     API_BASE: str = "localhost:5000"
 

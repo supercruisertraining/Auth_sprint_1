@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+import sentry_sdk
 from flask import Flask, request
 from flasgger import Swagger
 from opentelemetry import trace
@@ -8,6 +9,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from api.v1.users import users_blueprint_v1
 from api.v1.auth import auth_blueprint_v1
@@ -19,6 +21,14 @@ from api.v1.auth_social import auth_social_blueprint_v1
 from utils.cli_admin import admin_cli_blueprint
 from core.config import config
 
+if config.SENTRY_DSN and not config.DEBUG:
+    sentry_sdk.init(
+        dsn=config.SENTRY_DSN,
+        integrations=[
+            FlaskIntegration(),
+        ],
+        traces_sample_rate=1.0
+    )
 
 app = Flask(__name__)
 app.register_blueprint(users_blueprint_v1)
