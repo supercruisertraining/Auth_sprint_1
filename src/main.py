@@ -20,6 +20,7 @@ from api.v1.admin.permissions import admin_permissions_blueprint_v1
 from api.v1.auth_social import auth_social_blueprint_v1
 from utils.cli_admin import admin_cli_blueprint
 from core.config import config
+from log.logger import custom_logger
 
 if config.SENTRY_DSN and not config.DEBUG:
     sentry_sdk.init(
@@ -31,6 +32,9 @@ if config.SENTRY_DSN and not config.DEBUG:
     )
 
 app = Flask(__name__)
+
+app.logger = custom_logger
+
 app.register_blueprint(users_blueprint_v1)
 app.register_blueprint(auth_blueprint_v1)
 app.register_blueprint(roles_blueprint_v1)

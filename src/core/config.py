@@ -6,6 +6,9 @@ class Config(BaseSettings):
     DO_TRACE: bool = False
     SENTRY_DSN: str | None = None
 
+    LOGSTASH_HOST: str = "localhost"
+    LOGSTASH_PORT: int = 5044
+
     API_BASE: str = "localhost:5000"
 
     DB_USER: str = "app"

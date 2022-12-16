@@ -8,6 +8,7 @@ from services.token_storage_service import get_token_storage_service
 from services.user_service import get_user_service
 from services.oauth2_services import get_oauth2_service, SocialTypesEnum
 from utils.auth import verify_oauth2_state
+from log.logger import custom_logger
 
 auth_social_blueprint_v1 = Blueprint("auth_social_blueprint_v1", __name__, url_prefix="/api/v1/auth_social")
 
@@ -64,6 +65,8 @@ def create_or_login_user(social_type: str):
     oauth2_service = get_oauth2_service(social_type)
     oauth2_user_data = oauth2_service.get_user_data(authorization_response_url=request.url)
     new_or_existing_user = oauth2_service.create_user_from_social(oauth2_user_data)
+
+    custom_logger.info(f"User {new_or_existing_user.username} trying to log in by social {social_type}")
 
     # Делаем вход в пользователя систему
     token_service = get_token_service(user_id=new_or_existing_user.id)

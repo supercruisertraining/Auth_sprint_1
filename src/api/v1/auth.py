@@ -9,6 +9,7 @@ from services.token_service import get_token_service
 from services.token_storage_service import get_token_storage_service
 from utils.auth import token_required
 from core.config import config
+from log.logger import custom_logger
 
 auth_blueprint_v1 = Blueprint("auth_blueprint_v1", __name__, url_prefix="/api/v1")
 
@@ -35,6 +36,7 @@ def user_login():
     user_dto = user_service.login_user(username=request.json["username"], password=request.json["password"])
     if not user_dto:
         return jsonify({"message": "Username or password are wrong"}), HTTPStatus.NOT_FOUND
+    custom_logger.info(f"Try to login {user_dto.username}")
     token_service = get_token_service(user_id=user_dto.id)
     jwt_token_pair = token_service.generate_jwt_key_pair(user_role=user_dto.role)
     token_storage_service = get_token_storage_service()
@@ -45,6 +47,7 @@ def user_login():
                                   user_os=user_agent_obj.get_os() if user_agent_obj else None,
                                   user_browser=user_agent_obj.get_browser() if user_agent_obj else None,
                                   user_device=user_agent_obj.get_device() if user_agent_obj else None)
+    custom_logger.info(f"Login for {user_dto.username} was successfull")
     return jsonify(jwt_token_pair.render_to_user()), HTTPStatus.OK
 
 

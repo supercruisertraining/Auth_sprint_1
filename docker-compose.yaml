@@ -19,6 +19,7 @@ services:
       - JAEGER_HOST=${JAEGER_HOST}
       - JAEGER_PORT=${JAEGER_PORT}
       - SENTRY_DSN=${SENTRY_DSN}
+      - LOGSTASH_HOST=${LOGSTASH_HOST}
     working_dir: /app/src
     depends_on:
       - redis

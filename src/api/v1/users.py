@@ -5,6 +5,7 @@ from flask import request, jsonify, Blueprint
 from schemas.user import UserRegisterModel, UserUpdateModel
 from services.user_service import get_user_service
 from utils.auth import token_required
+from log.logger import custom_logger
 
 users_blueprint_v1 = Blueprint("users_blueprint_v1", __name__, url_prefix="/api/v1")
 
@@ -28,9 +29,11 @@ def create_user():
             description: Success
     """
     new_user = UserRegisterModel(**request.json)
+    custom_logger.info(f"Trying to register user {new_user.username}")
     user_service = get_user_service()
     is_valid, reason = user_service.validate_to_create(new_user)
     if not is_valid:
+        custom_logger.info(f"Username {new_user.username} is not valid")
         return jsonify({"message": reason}), HTTPStatus.CONFLICT
     new_id = user_service.create_user(new_user)
 
@@ -63,12 +66,14 @@ def update_user(user_id: str, *args, **kwargs):
             description: Success
     """
     user = UserUpdateModel(**request.json)
+    custom_logger.info(f"Trying to update user {user.username}")
     user_service = get_user_service()
     exist_user = user_service.get_user_by_user_id(user_id)
     if user.username and exist_user.username == user.username:
         user.username = None
     is_valid, reason = user_service.validate_to_create(user)
     if not is_valid:
+        custom_logger.info(f"Updating not valid for user {user.username}")
         return jsonify({"message": reason}), HTTPStatus.CONFLICT
     user_service.update_user(user_id, user)
 
