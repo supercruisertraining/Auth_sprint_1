@@ -18,3 +18,4 @@ class RequestIdFilter(logging.Filter):
 
 custom_logger.addFilter(RequestIdFilter())
 custom_logger.addHandler(logstash_handler)
+custom_logger = logging.LoggerAdapter(custom_logger, {"tag": config.LOGSTASH_TAG})

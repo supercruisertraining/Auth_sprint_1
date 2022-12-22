@@ -29,3 +29,4 @@ opentelemetry-semantic-conventions==0.29b0
 opentelemetry-util-http==0.29b0
 sentry-sdk==1.12.0
 python-logstash==0.4.8
+blinker==1.5

@@ -8,6 +8,7 @@ class Config(BaseSettings):
 
     LOGSTASH_HOST: str = "localhost"
     LOGSTASH_PORT: int = 5044
+    LOGSTASH_TAG: str = "auth_app"
 
     API_BASE: str = "localhost:5000"
 
